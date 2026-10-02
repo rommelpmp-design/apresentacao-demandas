@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Acompanhamento de Demandas – Segurança Empresarial</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --verde-escuro: #257226;
+      --verde-destaque: #84BD00;
+      --verde-medio: #5A9E29;
+      --verde-claro: #C4D600;
+      --fundo: #FFFFFF;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'TheSans', 'Segoe UI', 'Helvetica Neue', sans-serif;
+      background: var(--fundo);
+      color: #222;
+      height: 100vh;
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
+    }
+
+    .deck {
+      width: 100%;
+      max-width: 1200px;
+      height: 100vh;
+      padding: 24px 32px 16px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .slide {
+      flex: 1;
+      display: none;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .slide.active {
+      display: flex;
+    }
+
+    header.slide-header {
+      margin-bottom: 16px;
+    }
+
+    .slide-title {
+      font-weight: 700;
+      font-size: 2.2rem;
+      color: var(--verde-escuro);
+      margin-bottom: 8px;
+    }
+
+    .slide-subtitle {
+      font-weight: 500;
+      font-size: 1.2rem;
+      color: var(--verde-medio);
+    }
+
+    .slide-content {
+      flex: 1;
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+      gap: 24px;
+      align-items: stretch;
+    }
+
+    .slide-content.full {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    h2.section-title {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--verde-escuro);
+      margin-bottom: 12px;
+    }
+
+    h3.section-subtitle {
+      font-size: 1.2rem;
+      font-weight: 500;
+      color: var(--verde-medio);
+      margin-bottom: 8px;
+    }
+
+    p {
+      font-size: 1rem;
+      line-height: 1.5;
+      margin-bottom: 8px;
+    }
+
+    ul {
+      list-style: none;
+      margin-left: 0;
+      margin-top: 4px;
+    }
+
+    li::before {
+      content: "• ";
+      color: var(--verde-destaque);
+      font-weight: 700;
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+      margin-top: 8px;
+    }
+
+    .kpi-card {
+      border-radius: 10px;
+      border: 1px solid #e0e0e0;
+      padding: 12px 14px;
+      background: #fafafa;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 90px;
+    }
+
+    .kpi-label {
+      font-size: 0.9rem;
+      color: var(--verde-escuro);
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .kpi-value {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--verde-destaque);
+    }
+
+    .kpi-footnote {
+      font-size: 0.8rem;
+      color: #666;
+      margin-top: 4px;
+    }
+
+    .chart-card {
+      border-radius: 10px;
+      border: 1px solid #e0e0e0;
+      padding: 12px 14px;
+      background: #ffffff;
+      display: flex;
+      flex-direction: column;
+      min-height: 180px;
+    }
+
+    .chart-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--verde-escuro);
+      margin-bottom: 8px;
+    }
+
+    .chart-legend {
+      font-size: 0.85rem;
+      color: #555;
+      margin-bottom: 8px;
+    }
+
+    .bar-chart {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 12px;
+      flex: 1;
+      padding-bottom: 8px;
+    }
+
+    .bar-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .bar {
+      width: 70%;
+      border-radius: 6px 6px 0 0;
+      background: var(--verde-medio);
+      position: relative;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+    }
+
+    .bar-label {
+      font-size: 0.85rem;
+      margin-top: 4px;
+      text-align: center;
+      color: #444;
+    }
+
+    .bar-value {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #fff;
+      padding: 2px 4px;
+      margin-bottom: 2px;
+      border-radius: 4px;
+      background: var(--verde-escuro);
+    }
+
+    .line-chart {
+      position: relative;
+      flex: 1;
+      margin-top: 8px;
+      border-left: 1px solid #ddd;
+      border-bottom: 1px solid #ddd;
+      padding: 8px 8px 4px 8px;
+    }
+
+    .line-chart svg {
+      width: 100%;
+      height: 160px;
+    }
+
+    .callout {
+      border-left: 4px solid var(--verde-destaque);
+      background: #f7f9f3;
+      padding: 10px 12px;
+      border-radius: 6px;
+      margin-top: 8px;
+    }
+
+    .callout-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--verde-escuro);
+      margin-bottom: 4px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: var(--verde-claro);
+      color: var(--verde-escuro);
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-right: 6px;
+      margin-top: 4px;
+    }
+
+    .footer-nav {
+      margin-top: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid #e0e0e0;
+      padding-top: 8px;
+    }
+
+    .nav-buttons {
+      display: flex;
+      gap: 8px;
+    }
+
+    button.nav-btn {
+      border: none;
+      border-radius: 999px;
+      padding: 8px 16px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      background: var(--verde-destaque);
+      color: #fff;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    button.nav-btn.secondary {
+      background: #e0e0e0;
+      color: #333;
+    }
+
+    .slide-indicator {
+      font-size: 0.85rem;
+      color: #666;
+    }
+
+    /* Capa */
+    .cover {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 32px 24px;
+    }
+
+    .cover-title {
+      font-size: 2.6rem;
+      font-weight: 700;
+      color: var(--verde-escuro);
+      margin-bottom: 12px;
+    }
+
+    .cover-subtitle {
+      font-size: 1.4rem;
+      font-weight: 500;
+      color: var(--verde-medio);
+      margin-bottom: 24px;
+    }
+
+    .cover-meta {
+      font-size: 1rem;
+      color: #555;
+      margin-bottom: 6px;
+    }
+
+    .cover-kpis {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-top: 24px;
+    }
+
+    .cover-kpi {
+      border-radius: 10px;
+      border: 1px solid #e0e0e0;
+      padding: 12px 16px;
+      min-width: 180px;
+      background: #fafafa;
+    }
+
+    .cover-kpi-label {
+      font-size: 0.9rem;
+      color: var(--verde-escuro);
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .cover-kpi-value {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--verde-destaque);
+    }
+
+    @media (max-width: 900px) {
+      .slide-content {
+        grid-template-columns: minmax(0, 1fr);
+      }
+      .slide-title {
+        font-size: 1.8rem;
+      }
+      .cover-title {
+        font-size: 2.1rem;
+      }
+      .cover-subtitle {
+        font-size: 1.2rem;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .deck {
+        padding: 16px 12px 12px;
+      }
+      .kpi-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .cover-kpis {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="deck">
+    <!-- SLIDE 1 – CAPA -->
+    <section class="slide active" data-index="0">
+      <div class="cover">
+        <div>
+          <div class="cover-title">Acompanhamento de Demandas</div>
+          <div class="cover-subtitle">Segurança Empresarial · SAP / Portal de Terceiros / RONDA</div>
+          <p class="cover-meta">
+            Foco em gestão de acessos, controle de terceiros, integração de sistemas e melhoria de fluxos de aprovação.
+          </p>
+          <p class="cover-meta">
+            Exemplo de demanda: “Criação de novo fluxo de aprovação de acesso para terceiros da Mecânica em planta da Mineração.”
+          </p>
+        </div>
+
+        <div class="cover-kpis">
+          <div class="cover-kpi">
+            <div class="cover-kpi-label">Total de demandas mapeadas</div>
+            <div class="cover-kpi-value">26</div>
+          </div>
+          <div class="cover-kpi">
+            <div class="cover-kpi-label">% demandas concluídas</div>
+            <div class="cover-kpi-value">50%</div>
+          </div>
+          <div class="cover-kpi">
+            <div class="cover-kpi-label">Demandas em andamento / homologação</div>
+            <div class="cover-kpi-value">3</div>
+          </div>
+          <div class="cover-kpi">
+            <div class="cover-kpi-label">Demandas não iniciadas</div>
+            <div class="cover-kpi-value">10</div>
+          </div>
+        </div>
+      </div>
+
+      <footer class="footer-nav">
+        <div class="slide-indicator">Slide 1 de 6 · Use ← e → para navegar</div>
+        <div class="nav-buttons">
+          <button class="nav-btn secondary" onclick="prevSlide()">Anterior</button>
+          <button class="nav-btn" onclick="nextSlide()">Próximo →</button>
+        </div>
+      </footer>
+    </section>
+
+    <!-- SLIDE 2 – ABERTURA DIRETA AO PONTO -->
+    <section class="slide" data-index="1">
+      <header class="slide-header">
+        <div class="slide-title">Contexto e Objetivo</div>
+        <div class="slide-subtitle">Visão direta do portfólio de demandas de Segurança Empresarial</div>
+      </header>
+
+      <div class="slide-content full">
+        <div>
+          <h2 class="section-title">O que este acompanhamento responde</h2>
+          <p>
+            O registro consolidado de demandas traz iniciativas relacionadas a gestão de acessos, subcontratadas,
+            controle de exposição, integração SAP/RONDA e ajustes de fluxos no Portal de Terceiros.
+          </p>
+          <p>
+            O objetivo desta apresentação é oferecer uma leitura rápida e visual sobre:
+          </p>
+          <ul>
+            <li>Volume total de demandas e sua distribuição por status.</li>
+            <li>Nível de completude por demanda e estágio (escopo, desenvolvimento, testes, concluída).</li>
+            <li>Priorização e pontos críticos que exigem decisão ou avanço.</li>
+          </ul>
+
+          <div class="callout">
+            <div class="callout-title">Mensagem-chave de abertura</div>
+            <p>
+              Há um conjunto relevante de demandas já concluídas, mas ainda existe uma carteira significativa
+              de itens não iniciados e em homologação, especialmente ligados a Portal de Terceiros, RONDA e Gestão de Ativos.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <footer class="footer-nav">
+        <div class="slide-indicator">Slide 2 de 6 · Abertura</div>
+        <div class="nav-buttons">
+          <button class="nav-btn secondary" onclick="prevSlide()">← Anterior</button>
+          <button class="nav-btn" onclick="nextSlide()">Próximo →</button>
+        </div>
+      </footer>
+    </section>
+
+    <!-- SLIDE 3 – PANORAMA GERAL / DASHBOARD -->
+    <section class="slide" data-index="2">
+      <header class="slide-header">
+        <div class="slide-title">Panorama Geral das Demandas</div>
+        <div class="slide-subtitle">Distribuição por status e completude</div>
+      </header>
+
+      <div class="slide-content">
+        <div>
+          <h2 class="section-title">Resumo quantitativo</h2>
+          <div class="kpi-grid">
+            <div class="kpi-card">
+              <div class="kpi-label">Total de demandas</div>
+              <div class="kpi-value">26</div>
+              <div class="kpi-footnote">Inclui GT, RONDA, Portal de Terceiros, Gestão de Ativos e integrações.</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">Concluídas</div>
+              <div class="kpi-value">13</div>
+              <div class="kpi-footnote">Demandas com status “CONCLUÍDA” e completude 1.</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">Homologação / Desenvolvimento</div>
+              <div class="kpi-value">3</div>
+              <div class="kpi-footnote">Inclui itens em “DESENVOLVIMENTO” e “HOMOLOGAÇÃO”.</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">Não iniciadas</div>
+              <div class="kpi-value">10</div>
+              <div class="kpi-footnote">Demandas com status “NÃO INICIADO” ou aguardando priorização.</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">Média de esforço (HH)</div>
+              <div class="kpi-value">~16</div>
+              <div class="kpi-footnote">Estimativa aproximada considerando demandas com esforço informado.</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">Complexidade predominante</div>
+              <div class="kpi-value">Baixa</div>
+              <div class="kpi-footnote">Maioria das demandas classificadas como “BAIXA” ou “Simples”.</div>
+            </div>
+          </div>
+
+          <div class="callout" style="margin-top:16px;">
+            <div class="callout-title">Insight de portfólio</div>
+            <p>
+              A carteira combina ajustes pontuais (baixa complexidade) com algumas demandas moderadas
+              ligadas a gestão de equipamentos, controle de acesso e inspeções aleatórias.
+            </p>
+          </div>
+        </div>
+
+        <div>
+          <div class="chart-card">
+            <div class="chart-title">Distribuição de demandas por status</div>
+            <div class="chart-legend">
+              Concluídas (13), Em andamento/homologação (3), Não iniciadas (10).
+            </div>
+            <div class="bar-chart">
+              <div class="bar-item">
+                <div class="bar" style="height: 140px; background: var(--verde-medio);">
+                  <div class="bar-value">13</div>
+                </div>
+                <div class="bar-label">Concluídas</div>
+              </div>
+              <div class="bar-item">
+                <div class="bar" style="height: 80px; background: var(--verde-destaque);">
+                  <div class="bar-value">3</div>
+                </div>
+                <div class="bar-label">Em andamento</div>
+              </div>
+              <div class="bar-item">
+                <div class="bar" style="height: 110px; background: var(--verde-escuro);">
+                  <div class="bar-value">10</div>
+                </div>
+                <div class="bar-label">Não iniciadas</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="chart-card" style="margin-top:12px;">
+            <div class="chart-title">Completude por demanda (linha evolutiva)</div>
+            <div class="chart-legend">
+              Escala de 0 a 1, onde 1 representa demanda concluída.
+            </div>
+            <div class="line-chart">
+              <!-- Linha simples baseada em alguns valores de completude do arquivo -->
+              <svg viewBox="0 0 100 100" preserveAspectRatio="none">
+                <!-- eixo -->
+                <polyline points="5,95 95,95" stroke="#ddd" stroke-width="0.8" />
+                <polyline points="5,95 5,5" stroke="#ddd" stroke-width="0.8" />
+                <!-- linha de completude (valores amostrados: 0.25, 0, 1, 1, 1, 0.5, 1, 0.75, 1, 0, 0) -->
+                <polyline
+                  points="
+                    5,80
+                    15,95
+                    25,10
+                    35,10
+                    45,10
+                    55,50
+                    65,10
+                    75,30
+                    85,10
+                    95,95
+                  "
+                  fill="none"
+                  stroke="#5A9E29"
+                  stroke-width="1.5"
+                />
+                <!-- pontos -->
+                <circle cx="5" cy="80" r="1.5" fill="#84BD00" />
+                <circle cx="15" cy="95" r="1.5" fill="#84BD00" />
+                <circle cx="25" cy="10" r="1.5" fill="#84BD00" />
+                <circle cx="35" cy="10" r="1.5" fill="#84BD00" />
+                <circle cx="45" cy="10" r="1.5" fill="#84BD00" />
+                <circle cx="55" cy="50" r="1.5" fill="#84BD00" />
+                <circle cx="65" cy="10" r="1.5" fill="#84BD00" />
+                <circle cx="75" cy="30" r="1.5" fill="#84BD00" />
+                <circle cx="85" cy="10" r="1.5" fill="#84BD00" />
+                <circle cx="95" cy="95" r="1.5" fill="#84BD00" />
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <footer class="footer-nav">
+        <div class="slide-indicator">Slide 3 de 6 · Dashboard geral</div>
+        <div class="nav-buttons">
+          <button class="nav-btn secondary" onclick="prevSlide()">← Anterior</button>
+          <button class="nav-btn" onclick="nextSlide()">Próximo →</button>
+        </div>
+      </footer>
+    </section>
+
+    <!-- SLIDE 4 – FOCO EM PROCESSOS E RISCOS -->
+    <section class="slide" data-index="3">
+      <header class="slide-header">
+        <div class="slide-title">Processos Críticos e Riscos</div>
+        <div class="slide-subtitle">Portal de Terceiros, Controle de Acesso e Integrações</div>
+      </header>
+
+      <div class="slide-content">
+        <div>
+          <h2 class="section-title">Demandas com impacto direto em risco operacional</h2>
+          <h3 class="section-subtitle">Exemplos de vulnerabilidades e ajustes necessários</h3>
+          <p>
+            Há demandas que tratam de vulnerabilidades em fluxos de aprovação e controle de acesso,
+            como a alteração não solicitada na opção de modificação de acesso pedestre/condutor,
+            permitindo que empresas burlem processos de controle de terceiros.
+          </p>
+          <ul>
+            <li>
+              Ajustes em “alterar pedestre/condutor” para garantir aprovação exclusiva pela Segurança Patrimonial.
+            </li>
+            <li>
+              Correções em Grupo de Exposição e exigência de anexos (ASO, CTPS) para validação adequada
+              pelas áreas de Saúde e Segurança do Trabalho.
+            </li>
+            <li>
+              Integração de datas de laudos de fumaça entre SAP e RONDA, evitando divergências de validade.
+            </li>
+          </ul>
+
+          <div class="badge">Portal de Terceiros</div>
+          <div class="badge">Controle de Acesso</div>
+          <div class="badge">Integração SAP/RONDA</div>
+
+          <div class="callout" style="margin-top:12px;">
+            <div class="callout-title">Prioridade de mitigação</div>
+            <p>
+              Demandas que afetam diretamente conformidade, auditorias e segurança física devem permanecer
+              no topo da fila de execução, mesmo quando classificadas como de baixa complexidade técnica.
+            </p>
+          </div>
+        </div>
+
+        <div>
+          <div class="chart-card">
+            <div class="chart-title">Demandas por frente / processo</div>
+            <div class="chart-legend">
+              Destaque para GT (Gestão de Terceiros) e RONDA.
+            </div>
+            <div class="bar-chart">
+              <div class="bar-item">
+                <div class="bar" style="height: 130px; background: var(--verde-medio);">
+                  <div class="bar-value">GT</div>
+                </div>
+                <div class="bar-label">Maioria das demandas</div>
+              </div>
+              <div class="bar-item">
+                <div class="bar" style="height: 80px; background: var(--verde-destaque);">
+                  <div class="bar-value">RONDA</div>
+                </div>
+                <div class="bar-label">Integrações e bloqueios</div>
+              </div>
+              <div class="bar-item">
+                <div class="bar" style="height: 60px; background: var(--verde-escuro);">
+                  <div class="bar-value">Gestão de Ativos</div>
+                </div>
+                <div class="bar-label">Expansão MUSA</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="chart-card" style="margin-top:12px;">
+            <div class="chart-title">Complexidade x esforço (visão qualitativa)</div>
+            <div class="chart-legend">
+              A maioria das demandas combina baixa complexidade com esforço entre 8 e 32 HH.
+            </div>
+            <p style="font-size:0.95rem; margin-top:4px;">
+              • Demandas moderadas: Gestão de Equipamentos, Controle de Acesso, Inspeção Aleatória.<br />
+              • Demandas simples/baixas: ajustes de transações ZGT/ZHR, criação de queries, campos obrigatórios.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <footer class="footer-nav">
+        <div class="slide-indicator">Slide 4 de 6 · Processos críticos</div>
+        <div class="nav-buttons">
+          <button class="nav-btn secondary" onclick="prevSlide()">← Anterior</button>
+          <button class="nav-btn" onclick="nextSlide()">Próximo →</button>
+        </div>
+      </footer>
+    </section>
+
+    <!-- SLIDE 5 – PRIORIZAÇÃO E PROJEÇÕES -->
+    <section class="slide" data-index="4">
+      <header class="slide-header">
+        <div class="slide-title">Priorização e Projeções</div>
+        <div class="slide-subtitle">Foco em itens não iniciados e aguardando decisão</div>
+      </header>
+
+      <div class="slide-content">
+        <div>
+          <h2 class="section-title">Demandas com prioridade explícita</h2>
+          <p>
+            O arquivo registra prioridades numéricas (00, 01, 02, 03, etc.) e observações como
+            “AGUARDANDO PRIORIZAÇÃO” para algumas demandas, indicando necessidade de decisão
+            do usuário ou da área solicitante.
+          </p>
+          <ul>
+            <li>
+              Novos fluxos de aprovação de acesso para terceiros na Mineração (Gestão de Acessos / GT – UMSA).
+            </li>
+            <li>
+              Replicação de programas legais da Subcontratada no Portal de Terceiros (PRIORIDADE 14).
+            </li>
+            <li>
+              Expansão da Gestão de Ativos para MUSA (PRIORIDADE 15).
+            </li>
+          </ul>
+
+          <div class="callout" style="margin-top:12px;">
+            <div class="callout-title">Projeção de avanço</div>
+            <p>
+              Considerando o histórico de conclusão de demandas de baixa complexidade e esforço médio de 16 HH,
+              é razoável projetar que, com alocação dedicada, o bloco de 10 demandas não iniciadas
+              possa ser reduzido pela metade em um ciclo de 1 a 2 meses.
+            </p>
+          </div>
+        </div>
+
+        <div>
+          <div class="chart-card">
+            <div class="chart-title">Linha de tempo projetada (qualitativa)</div>
+            <div class="chart-legend">
+              Projeção de redução de demandas não iniciadas ao longo de 2 marcos.
+            </div>
+            <div class="line-chart">
+              <svg viewBox="0 0 100 100" preserveAspectRatio="none">
+                <!-- eixo -->
+                <polyline points="5,95 95,95" stroke="#ddd" stroke-width="0.8" />
+                <polyline points="5,95 5,5" stroke="#ddd" stroke-width="0.8" />
+                <!-- linha: 10 demandas não iniciadas → 5 → 2 -->
+                <polyline
+                  points="
+                    5,20
+                    50,50
+                    95,75
+                  "
+                  fill="none"
+                  stroke="#5A9E29"
+                  stroke-width="1.5"
+                />
+                <circle cx="5" cy="20" r="1.8" fill="#84BD00" />
+                <circle cx="50" cy="50" r="1.8" fill="#84BD00" />
+                <circle cx="95" cy="75" r="1.8" fill="#84BD00" />
+              </svg>
+            </div>
+          </div>
+
+          <div class="chart-card" style="margin-top:12px;">
+            <div class="chart-title">Clusters de prioridade</div>
+            <p style="font-size:0.95rem;">
+              • <span style="color:var(--verde-escuro); font-weight:600;">Alta urgência</span>:
+              itens com impacto direto em risco (controle de acesso, grupo de exposição, laudos de fumaça).<br />
+              • <span style="color:var(--verde-medio); font-weight:600;">Estratégicos</span>:
+              Gestão de Ativos MUSA, novos fluxos de aprovação, programas legais de subcontratadas.<br />
+              • <span style="color:var(--verde-destaque); font-weight:600;">Táticos</span>:
+              ajustes de campos obrigatórios, queries, melhorias de relatórios.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <footer class="footer-nav">
+        <div class="slide-indicator">Slide 5 de 6 · Priorização e projeções</div>
+        <div class="nav-buttons">
+          <button class="nav-btn secondary" onclick="prevSlide()">← Anterior</button>
+          <button class="nav-btn" onclick="nextSlide()">Próximo →</button>
+        </div>
+      </footer>
+    </section>
+
+    <!-- SLIDE 6 – FECHAMENTO E PRÓXIMOS PASSOS -->
+    <section class="slide" data-index="5">
+      <header class="slide-header">
+        <div class="slide-title">Fechamento e Próximos Passos</div>
+        <div class="slide-subtitle">Do diagnóstico visual à execução</div>
+      </header>
+
+      <div class="slide-content full">
+        <div>
+          <h2 class="section-title">Síntese</h2>
+          <p>
+            O conjunto de 26 demandas mostra um avanço consistente em itens concluídos,
+            com 13 já finalizados e 3 em desenvolvimento ou homologação. Ainda há 10 demandas
+            não iniciadas, muitas delas com impacto direto em conformidade, segurança de acesso
+            e expansão de capacidades (como Gestão de Ativos em MUSA).
+          </p>
+
+          <h3 class="section-subtitle">Próximos passos recomendados</h3>
+          <ul>
+            <li>
+              Consolidar uma lista de “top 5” demandas críticas (risco / auditoria) para execução imediata.
+            </li>
+            <li>
+              Definir janelas de implementação para blocos de baixa complexidade, aproveitando o esforço médio de 16 HH.
+            </li>
+            <li>
+              Formalizar decisões pendentes em demandas “AGUARDANDO PRIORIZAÇÃO”, com responsáveis e prazos claros.
+            </li>
+            <li>
+              Monitorar mensalmente a evolução da completude, atualizando o dashboard de status e projeções.
+            </li>
+          </ul>
+
+          <div class="callout" style="margin-top:12px;">
+            <div class="callout-title">Encerramento</div>
+            <p>
+              Este painel em HTML pode ser utilizado como base para reuniões de acompanhamento,
+              permitindo navegação por teclado (← e →) e leitura rápida dos principais indicadores
+              de demandas de Segurança Empresarial.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <footer class="footer-nav">
+        <div class="slide-indicator">Slide 6 de 6 · Fechamento</div>
+        <div class="nav-buttons">
+          <button class="nav-btn secondary" onclick="prevSlide()">← Anterior</button>
+          <button class="nav-btn" onclick="nextSlide()">Próximo</button>
+        </div>
+      </footer>
+    </section>
+  </div>
+
+  <script>
+    const slides = document.querySelectorAll('.slide');
+    let currentIndex = 0;
+
+    function showSlide(index) {
+      if (index < 0 || index >= slides.length) return;
+      slides.forEach((s, i) => {
+        s.classList.toggle('active', i === index);
+      });
+      currentIndex = index;
+    }
+
+    function nextSlide() {
+      const next = currentIndex + 1;
+      showSlide(next >= slides.length ? slides.length - 1 : next);
+    }
+
+    function prevSlide() {
+      const prev = currentIndex - 1;
+      showSlide(prev < 0 ? 0 : prev);
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') {
+        nextSlide();
+      } else if (e.key === 'ArrowLeft') {
+        prevSlide();
+      }
+    });
+  </script>
+</body>
+</html>
